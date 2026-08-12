@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile — LinAlgo{% endblock %}
+{% block meta_description %}User profile and account settings on LinAlgo.{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+  <div class="section-container">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          {{ current_user.username[0] | upper }}
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ current_user.username }}</h1>
+          <p class="profile-email">✉️ {{ current_user.email }}</p>
+          {% if current_user.is_unlimited %}
+            <span class="profile-badge badge-vip">👑 Lifetime VIP</span>
+          {% elif current_user.plan_type == 'weekly' %}
+            <span class="profile-badge badge-pro">⚡ Weekly Pro</span>
+          {% else %}
+            <span class="profile-badge">✨ LinAlgo Scholar</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-details-grid">
+        <div class="detail-box">
+          <span class="detail-label">Account ID</span>
+          <span class="detail-value">#{{ current_user.id }}</span>
+        </div>
+        <div class="detail-box">
+          <span class="detail-label">Credit Balance</span>
+          <span class="detail-value text-accent">
+            {% if current_user.is_unlimited %}
+              ♾️ Unlimited
+            {% else %}
+              🪙 {{ current_user.credits if current_user.credits is not none else 0 }} Credits
+            {% endif %}
+          </span>
+        </div>
+        <div class="detail-box">
+          <span class="detail-label">Member Since</span>
+          <span class="detail-value">{{ current_user.created_at[:10] if current_user.created_at else 'Today' }}</span>
+        </div>
+        <div class="detail-box">
+          <span class="detail-label">Arithmetic Precision</span>
+          <span class="detail-value text-accent">Exact (Fraction)</span>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <a href="/pricing" class="btn btn-primary">
+          Buy Credits / Upgrade Plan &rarr;
+        </a>
+        <a href="/" class="btn btn-ghost">
+          Back to Home
+        </a>
+        <a href="/logout" class="btn btn-ghost">
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

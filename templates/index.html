@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}LinAlgo — Step-by-Step Linear Algebra Solver{% endblock %}
+{% block meta_description %}Production-grade linear algebra solver with full step-by-step solutions: Gaussian Elimination, Gauss-Jordan, Determinants, Eigenvalues, Gram-Schmidt, and more. Powered by exact arithmetic.{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Production-Grade · Exact Arithmetic · Full Step-by-Step
+    </div>
+    <h1 class="hero-title">
+      Step-by-Step<br />
+      <span class="gradient-text">Linear Algebra</span><br />
+      Solver
+    </h1>
+    <p class="hero-subtitle">
+      Solve complex linear algebra problems with complete, human-readable solutions.
+      Every row operation, projection, and cofactor — shown explicitly.
+      Zero floating-point errors: all computations use Python's
+      <code>fractions.Fraction</code> for exact rational arithmetic.
+    </p>
+    <div class="hero-cta">
+      <a href="/solver/gaussian" class="btn btn-primary btn-lg">
+        Start Solving &rarr;
+      </a>
+      <a href="#modules" class="btn btn-ghost btn-lg">
+        Browse Modules
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">7</span>
+        <span class="stat-label">Solver Modules</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">2</span>
+        <span class="stat-label">Course Units</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Exact Precision</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating math symbols decoration -->
+  <div class="hero-floats" aria-hidden="true">
+    <span class="float-sym" style="top:12%;left:8%;font-size:2.2rem;animation-delay:0s;">λ</span>
+    <span class="float-sym" style="top:22%;right:10%;font-size:1.8rem;animation-delay:1.5s;">∑</span>
+    <span class="float-sym" style="top:65%;left:5%;font-size:1.5rem;animation-delay:0.8s;">⊥</span>
+    <span class="float-sym" style="top:70%;right:7%;font-size:2rem;animation-delay:2s;">∈</span>
+    <span class="float-sym" style="top:40%;left:3%;font-size:1.6rem;animation-delay:1.2s;">|A|</span>
+    <span class="float-sym" style="top:50%;right:4%;font-size:1.4rem;animation-delay:0.4s;">→</span>
+  </div>
+</section>
+
+<!-- ── Module Grid ──────────────────────────────────────────────────────────── -->
+<section class="modules-section" id="modules">
+  <div class="section-container">
+
+    <!-- Unit 1 -->
+    <div class="unit-header">
+      <div class="unit-badge unit-1">Unit I</div>
+      <h2 class="unit-title">Systems, Vectors &amp; Vector Spaces</h2>
+      <p class="unit-desc">
+        Foundational linear algebra: solving systems of equations, vector arithmetic,
+        and understanding the structure of vector spaces.
+      </p>
+    </div>
+
+    <div class="modules-grid">
+      {% for key, mod in unit1.items() %}
+      <a href="/solver/{{ key }}" class="module-card color-{{ mod.color }}" id="card-{{ key }}">
+        <div class="card-icon">{{ mod.icon }}</div>
+        <div class="card-body">
+          <h3 class="card-title">{{ mod.title }}</h3>
+          <p class="card-subtitle">{{ mod.subtitle }}</p>
+          <p class="card-desc">{{ mod.description }}</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- Unit 2 -->
+    <div class="unit-header" style="margin-top: 4rem;">
+      <div class="unit-badge unit-2">Unit II</div>
+      <h2 class="unit-title">Determinants, Eigenvalues &amp; Inner Products</h2>
+      <p class="unit-desc">
+        Advanced linear algebra: scalar invariants, spectral theory,
+        and orthogonal decompositions.
+      </p>
+    </div>
+
+    <div class="modules-grid">
+      {% for key, mod in unit2.items() %}
+      <a href="/solver/{{ key }}" class="module-card color-{{ mod.color }}" id="card-{{ key }}">
+        <div class="card-icon">{{ mod.icon }}</div>
+        <div class="card-body">
+          <h3 class="card-title">{{ mod.title }}</h3>
+          <p class="card-subtitle">{{ mod.subtitle }}</p>
+          <p class="card-desc">{{ mod.description }}</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </a>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Feature strip ─────────────────────────────────────────────────────────── -->
+<section class="features-strip">
+  <div class="section-container">
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">🔢</div>
+        <h4>Exact Arithmetic</h4>
+        <p>Every calculation uses Python's <code>Fraction</code> type — no rounding, no floating-point drift.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📐</div>
+        <h4>LaTeX Rendering</h4>
+        <p>All matrices, formulas, and results are rendered with MathJax 3 for beautiful, textbook-quality math.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🧩</div>
+        <h4>Modular Architecture</h4>
+        <p>Clean separation between Flask routes, pure Python solver functions, and Jinja2 templates.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎯</div>
+        <h4>Step-by-Step</h4>
+        <p>Each elementary row operation, cofactor, or projection is shown explicitly with the resulting matrix.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

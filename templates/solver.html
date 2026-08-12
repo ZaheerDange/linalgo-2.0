@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}{{ meta.title }} — LinAlgo{% endblock %}
+{% block meta_description %}Step-by-step {{ meta.title }}: {{ meta.subtitle }}. Full solution with every intermediate matrix and operation shown.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Inject current module colour as CSS custom property */
+  :root { --module-color: var(--color-{{ meta.color }}); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="solver-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Modules</span>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+    </div>
+
+    <div class="sidebar-unit-label">Unit I</div>
+    {% for key, mod in all_modules.items() if mod.unit == 1 %}
+    <a href="/solver/{{ key }}"
+       class="sidebar-link color-{{ mod.color }} {% if key == module %}active{% endif %}"
+       id="sbl-{{ key }}">
+      <span class="sbl-icon">{{ mod.icon }}</span>
+      <span class="sbl-text">{{ mod.title }}</span>
+    </a>
+    {% endfor %}
+
+    <div class="sidebar-unit-label">Unit II</div>
+    {% for key, mod in all_modules.items() if mod.unit == 2 %}
+    <a href="/solver/{{ key }}"
+       class="sidebar-link color-{{ mod.color }} {% if key == module %}active{% endif %}"
+       id="sbl-{{ key }}">
+      <span class="sbl-icon">{{ mod.icon }}</span>
+      <span class="sbl-text">{{ mod.title }}</span>
+    </a>
+    {% endfor %}
+  </aside>
+
+  <!-- ── Main panel ──────────────────────────────────────────────────────── -->
+  <section class="solver-main">
+
+    <!-- Module header -->
+    <div class="module-header color-{{ meta.color }}">
+      <div class="module-header-left">
+        <div class="module-icon-lg">{{ meta.icon }}</div>
+        <div>
+          <nav class="breadcrumb" aria-label="breadcrumb">
+            <a href="/">Home</a>
+            <span class="bc-sep">›</span>
+            <span>Unit {{ meta.unit }}</span>
+            <span class="bc-sep">›</span>
+            <span class="bc-current">{{ meta.title }}</span>
+          </nav>
+          <h1 class="module-title">{{ meta.title }}</h1>
+          <p class="module-subtitle">{{ meta.subtitle }}</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="module-desc">{{ meta.description }}</p>
+
+    <!-- ── Input Panel ─────────────────────────────────────────────────── -->
+    <div class="input-panel" id="inputPanel">
+      <div class="input-panel-header">
+        <h2 class="input-title">Input</h2>
+        <div class="input-actions">
+          <button class="btn btn-ghost btn-sm" id="btnExample" title="Load example">
+            ✦ Example
+          </button>
+          <button class="btn btn-ghost btn-sm" id="btnClear" title="Clear all inputs">
+            ✕ Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Augmented Matrix (gaussian, gauss-jordan) -->
+      {% if meta.input_type == 'augmented_matrix' %}
+      <div class="input-block" id="inputBlock">
+        <div class="size-controls">
+          <label class="size-label">
+            Equations:
+            <input type="number" id="augRows" min="1" max="5" value="3"
+                   class="size-input" aria-label="Number of equations" />
+          </label>
+          <span class="size-hint">(max 5 equations, auto-computes columns = rows + 1)</span>
+        </div>
+        <div class="matrix-wrap">
+          <div class="matrix-label">Augmented Matrix $[A \mid \mathbf{b}]$</div>
+          <div class="matrix-grid" id="matrixGrid" role="table" aria-label="Augmented matrix input"></div>
+        </div>
+      </div>
+
+      <!-- Two Vectors (vectors) -->
+      {% elif meta.input_type == 'two_vectors' %}
+      <div class="input-block" id="inputBlock">
+        <div class="size-controls">
+          <label class="size-label">
+            Dimension:
+            <input type="number" id="vecDim" min="2" max="6" value="3"
+                   class="size-input" aria-label="Vector dimension" />
+          </label>
+          <span class="size-hint">(cross product only for 3D, max dim 6)</span>
+        </div>
+        <div class="two-vec-grid">
+          <div class="vec-block">
+            <div class="vec-label">Vector $\mathbf{u}$</div>
+            <div class="vec-entries" id="vecU" role="group" aria-label="Vector u entries"></div>
+          </div>
+          <div class="vec-block">
+            <div class="vec-label">Vector $\mathbf{v}$</div>
+            <div class="vec-entries" id="vecV" role="group" aria-label="Vector v entries"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi Vectors (vector-space, gram-schmidt) -->
+      {% elif meta.input_type == 'multi_vectors' %}
+      <div class="input-block" id="inputBlock">
+        <div class="size-controls">
+          <label class="size-label">
+            Vectors:
+            <input type="number" id="numVecs" min="1" max="{% if module == 'gram-schmidt' %}4{% else %}5{% endif %}"
+                   value="{% if module == 'gram-schmidt' %}3{% else %}3{% endif %}"
+                   class="size-input" aria-label="Number of vectors" />
+          </label>
+          <label class="size-label">
+            Dimension:
+            <input type="number" id="vecDim" min="1" max="6" value="3"
+                   class="size-input" aria-label="Vector dimension" />
+          </label>
+        </div>
+        <div class="multi-vec-grid" id="multiVecGrid" role="group" aria-label="Input vectors"></div>
+      </div>
+
+      <!-- Square Matrix (determinant, eigenvalues) -->
+      {% elif meta.input_type == 'square_matrix' %}
+      <div class="input-block" id="inputBlock">
+        <div class="size-controls">
+          <label class="size-label">
+            Size ($n \times n$):
+            <input type="number" id="sqN"
+                   min="1"
+                   max="{% if module == 'eigenvalues' %}3{% else %}5{% endif %}"
+                   value="{% if module == 'eigenvalues' %}2{% else %}3{% endif %}"
+                   class="size-input" aria-label="Matrix size n" />
+          </label>
+          {% if module == 'eigenvalues' %}
+          <span class="size-hint">(2×2 or 3×3 only)</span>
+          {% else %}
+          <span class="size-hint">(max 5×5)</span>
+          {% endif %}
+        </div>
+        <div class="matrix-wrap">
+          <div class="matrix-label">Square Matrix $A$</div>
+          <div class="matrix-grid" id="sqMatrixGrid" role="table" aria-label="Square matrix input"></div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Solve button -->
+      <div class="solve-actions">
+        <button class="btn btn-primary btn-solve" id="btnSolve" aria-live="polite">
+          <span class="btn-icon">⚡</span> Solve Step-by-Step
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Error Banner ────────────────────────────────────────────────── -->
+    <div class="error-banner" id="errorBanner" hidden role="alert">
+      <span class="error-icon">⚠</span>
+      <span id="errorMessage">An error occurred.</span>
+    </div>
+
+    <!-- ── Steps Output ────────────────────────────────────────────────── -->
+    <div class="steps-section" id="stepsSection" hidden>
+      <div class="steps-header">
+        <h2 class="steps-title">Solution — Step by Step</h2>
+        <span class="steps-count" id="stepsCount"></span>
+      </div>
+      <div class="steps-container" id="stepsContainer" aria-live="polite"></div>
+    </div>
+
+  </section><!-- /solver-main -->
+</div><!-- /solver-layout -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Pass server-side data to the JS module
+  window.SOLVER_MODULE = {{ module | tojson }};
+  window.MODULE_META   = {{ meta   | tojson }};
+  window.MODULE_EXAMPLE = {{ meta.example | tojson }};
+  window.initSolver();
+</script>
+{% endblock %}

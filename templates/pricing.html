@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing & Upgrade Portal — LinAlgo{% endblock %}
+{% block meta_description %}Upgrade your LinAlgo account with Weekly Credits Pass (₹2,000 for 200 credits) or Lifetime Unlimited Pass (₹20,000 for unlimited step-by-step calculations).{% endblock %}
+
+{% block content %}
+<section class="pricing-section">
+  <div class="section-container">
+    <div class="pricing-header">
+      <div class="pricing-badge">
+        <span class="badge-dot"></span> Upgrade Portal
+      </div>
+      <h1 class="pricing-title">Simple, Flexible Pricing</h1>
+      <p class="pricing-subtitle">
+        Choose a credit plan or get lifetime unlimited access to all step-by-step linear algebra solvers.
+      </p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Starter Plan -->
+      <div class="pricing-card">
+        <div class="plan-badge-top">✨ LinAlgo Scholar</div>
+        <h2 class="plan-name">Free Starter Pass</h2>
+        <p class="plan-desc">For quick homework checks & basic practice</p>
+        <div class="plan-price">
+          <span class="price-val">₹0</span>
+          <span class="price-period">/ forever</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="feat-check">✓</span> <strong>50 Free Credits</strong> on Sign Up</li>
+          <li><span class="feat-check">✓</span> All 7 Solver Modules</li>
+          <li><span class="feat-check">✓</span> Exact Fraction Arithmetic</li>
+          <li><span class="feat-check">✓</span> Standard LaTeX Math Jax Rendering</li>
+        </ul>
+        <div class="plan-cta">
+          {% if current_user %}
+            <button class="btn btn-ghost btn-block" disabled>Default Starter Plan</button>
+          {% else %}
+            <a href="/register" class="btn btn-primary btn-block">Get Started Free &rarr;</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Weekly Pro Plan -->
+      <div class="pricing-card featured-card">
+        <div class="popular-ribbon">Most Popular</div>
+        <div class="plan-badge-top badge-pro">⚡ Weekly Pro</div>
+        <h2 class="plan-name">Weekly Pass</h2>
+        <p class="plan-desc">Ideal for students working through intensive coursework</p>
+        <div class="plan-price">
+          <span class="price-val">₹2,000</span>
+          <span class="price-period">/ week</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="feat-check">✓</span> <strong>200 Credits / Week</strong></li>
+          <li><span class="feat-check">✓</span> Full Step-by-Step Matrix & Vector Solvers</li>
+          <li><span class="feat-check">✓</span> Priority Server Calculation Speed</li>
+          <li><span class="feat-check">✓</span> Instant Top-Up Anytime</li>
+        </ul>
+        <div class="plan-cta">
+          {% if current_user %}
+            <button class="btn btn-primary btn-block open-checkout" data-plan="weekly" data-price="2000" data-credits="200" data-name="Weekly Pro Pass">
+              Buy 200 Credits (₹2,000) &rarr;
+            </button>
+          {% else %}
+            <a href="/login" class="btn btn-primary btn-block">Sign In to Buy Credits &rarr;</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Lifetime Unlimited Plan -->
+      <div class="pricing-card vip-card">
+        <div class="plan-badge-top badge-vip">👑 Lifetime VIP</div>
+        <h2 class="plan-name">Lifetime Unlimited</h2>
+        <p class="plan-desc">One-time payment for perpetual unlimited access</p>
+        <div class="plan-price">
+          <span class="price-val">₹20,000</span>
+          <span class="price-period">/ one-time</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="feat-check">✓</span> <strong>Unlimited Calculations Forever</strong></li>
+          <li><span class="feat-check">✓</span> Never Run Out of Credits</li>
+          <li><span class="feat-check">✓</span> Lifetime Access to All Future Modules</li>
+          <li><span class="feat-check">✓</span> 👑 Lifetime VIP Badge on Profile</li>
+        </ul>
+        <div class="plan-cta">
+          {% if current_user %}
+            {% if current_user.is_unlimited %}
+              <button class="btn btn-ghost btn-block" disabled>✓ Lifetime Active</button>
+            {% else %}
+              <button class="btn btn-vip btn-block open-checkout" data-plan="lifetime" data-price="20000" data-credits="unlimited" data-name="Lifetime Unlimited VIP">
+                Get Lifetime Pass (₹20,000) &rarr;
+              </button>
+            {% endif %}
+          {% else %}
+            <a href="/login" class="btn btn-vip btn-block">Sign In to Upgrade &rarr;</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Simulated Payment Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal" hidden>
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-header">
+      <span class="modal-badge">💳 Instant Checkout</span>
+      <h3 class="modal-title" id="checkoutPlanName">Upgrade Plan</h3>
+      <p class="modal-subtitle">Confirm your plan selection below</p>
+    </div>
+
+    <div class="checkout-summary">
+      <div class="summary-row">
+        <span>Plan Name</span>
+        <strong id="summaryPlan">Weekly Pass</strong>
+      </div>
+      <div class="summary-row">
+        <span>Credits Added</span>
+        <strong id="summaryCredits">+200 Credits</strong>
+      </div>
+      <div class="summary-row summary-total">
+        <span>Total Payable</span>
+        <strong id="summaryPrice" class="text-accent">₹2,000</strong>
+      </div>
+    </div>
+
+    <div class="simulated-payment-methods">
+      <label class="pay-method active">
+        <input type="radio" name="payMethod" checked />
+        <span>⚡ Simulated Instant UPI / Card</span>
+      </label>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-block btn-lg" id="btnConfirmPayment">
+      Complete Payment & Activate Plan &rarr;
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('checkoutModal');
+    const closeBtn = document.getElementById('modalClose');
+    const confirmBtn = document.getElementById('btnConfirmPayment');
+    
+    let selectedPlan = null;
+
+    document.querySelectorAll('.open-checkout').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedPlan = {
+          plan: btn.dataset.plan,
+          price: btn.dataset.price,
+          credits: btn.dataset.credits,
+          name: btn.dataset.name
+        };
+
+        document.getElementById('checkoutPlanName').textContent = selectedPlan.name;
+        document.getElementById('summaryPlan').textContent = selectedPlan.name;
+        document.getElementById('summaryCredits').textContent = selectedPlan.credits === 'unlimited' ? '♾️ Unlimited Credits' : `+${selectedPlan.credits} Credits`;
+        document.getElementById('summaryPrice').textContent = `₹${parseInt(selectedPlan.price).toLocaleString('en-IN')}`;
+
+        modal.hidden = false;
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => modal.hidden = true);
+    }
+
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', async () => {
+        if (!selectedPlan) return;
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Processing Payment…';
+
+        try {
+          const resp = await fetch('/api/buy-credits', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(selectedPlan)
+          });
+          const data = await resp.json();
+
+          if (data.success) {
+            alert(`Payment Successful! Your account has been upgraded: ${data.message}`);
+            window.location.reload();
+          } else {
+            alert(`Payment Failed: ${data.error}`);
+          }
+        } catch (e) {
+          alert('Network error while completing payment.');
+        } finally {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Complete Payment & Activate Plan →';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
