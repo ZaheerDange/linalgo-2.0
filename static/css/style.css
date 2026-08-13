@@ -1702,4 +1702,327 @@ strong, b { font-weight: 600; }
   color: var(--text-primary);
 }
 
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE MOBILE OPTIMIZATIONS (Max Width 992px, 768px, 480px)
+   Does not alter desktop layout (> 992px).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet & Small Laptops (<= 992px) ────────────────────────────────────── */
+@media (max-width: 992px) {
+  .solver-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-dim);
+    padding: 12px 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  .sidebar-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-raised);
+    border: 1px solid var(--border-mid);
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  .sidebar .sidebar-unit-label,
+  .sidebar .sidebar-link {
+    display: none;
+  }
+
+  .sidebar.open .sidebar-unit-label,
+  .sidebar.open .sidebar-link {
+    display: flex;
+  }
+
+  .sidebar-header {
+    margin-bottom: 0;
+  }
+
+  .sidebar.open .sidebar-header {
+    margin-bottom: 12px;
+  }
+
+  .solver-main {
+    max-width: 100%;
+    padding: 24px 20px 40px;
+  }
+
+  .pricing-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+/* ── Mobile Devices (<= 768px) ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar-inner {
+    padding: 0 14px;
+    gap: 12px;
+  }
+
+  .brand-logo-img {
+    height: 32px;
+  }
+
+  .brand-text {
+    font-size: 1.1rem;
+  }
+
+  .navbar-links {
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .nav-link {
+    padding: 5px 10px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .nav-auth-btn {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+
+  .nav-credits-badge {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  .username-text {
+    display: none;
+  }
+
+  /* Hero Section */
+  .hero {
+    padding: 48px 16px 36px;
+    min-height: auto;
+  }
+
+  .hero-badge {
+    font-size: 0.72rem;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 7vw, 2.8rem);
+    letter-spacing: -0.8px;
+    margin-bottom: 16px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto 36px;
+    gap: 10px;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-stats {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 20px;
+    max-width: 100%;
+  }
+
+  .stat-divider {
+    width: 60%;
+    height: 1px;
+  }
+
+  /* Modules Grid */
+  .modules-section {
+    padding: 48px 0;
+  }
+
+  .section-container {
+    padding: 0 16px;
+  }
+
+  .unit-title {
+    font-size: 1.4rem;
+  }
+
+  .unit-desc {
+    font-size: 0.88rem;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .module-card {
+    padding: 18px 20px;
+  }
+
+  /* Features Strip */
+  .features-strip {
+    padding: 40px 0;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* Solver Page */
+  .solver-main {
+    padding: 16px 12px 36px;
+  }
+
+  .module-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .module-header-left {
+    gap: 12px;
+  }
+
+  .module-icon-lg {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+  }
+
+  .module-title {
+    font-size: 1.35rem;
+  }
+
+  .module-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .module-desc {
+    font-size: 0.84rem;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+  }
+
+  /* Input Panel & Matrix Grid */
+  .input-panel {
+    padding: 16px 14px;
+  }
+
+  .input-panel-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .size-controls {
+    gap: 12px;
+  }
+
+  .matrix-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 0 10px;
+  }
+
+  .cell-input {
+    width: 52px;
+    height: 40px;
+    font-size: 0.88rem;
+  }
+
+  .bracket-char {
+    font-size: 2.4rem;
+  }
+
+  .btn-solve {
+    padding: 13px 20px;
+    font-size: 0.95rem;
+  }
+
+  /* Step Cards & Equation Math Overflow */
+  .step-card {
+    padding: 16px 14px;
+  }
+
+  .step-operation,
+  .step-matrix,
+  .step-result {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  /* Modal */
+  .modal-card {
+    max-width: 92vw;
+    padding: 24px 18px;
+  }
+
+  .price-val {
+    font-size: 2rem;
+  }
+}
+
+/* ── Small Phones (<= 480px) ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .navbar-brand {
+    gap: 6px;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .cell-input {
+    width: 46px;
+    height: 38px;
+    font-size: 0.82rem;
+  }
+
+  .matrix-grid table {
+    border-spacing: 4px;
+  }
+
+  .btn-lg {
+    padding: 11px 20px;
+    font-size: 0.92rem;
+  }
+
+  .footer-inner {
+    font-size: 0.78rem;
+  }
+}
+
+
 
