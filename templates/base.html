@@ -42,11 +42,14 @@
 </head>
 
 <body>
+  <!-- ── Ambient Math Symbols Background Layer ───────────────────────────── -->
+  <div class="ambient-math-bg" id="ambientMathBg" aria-hidden="true"></div>
+
   <!-- ── Navigation ──────────────────────────────────────────────────────── -->
   <nav class="navbar" id="navbar">
     <div class="navbar-inner">
       <a class="navbar-brand" href="/">
-        <span class="brand-icon">∑</span>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="LinAlgo Logo" class="brand-logo-img" />
         <span class="brand-text">Lin<span class="brand-accent">Algo</span></span>
       </a>
       <div class="navbar-links">

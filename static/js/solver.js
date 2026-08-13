@@ -559,3 +559,54 @@ function updateNavbarCredits(remCredits) {
     if (iconEl) iconEl.textContent = '🪙';
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   AMBIENT MATH SYMBOLS BACKGROUND
+   ══════════════════════════════════════════════════════════════════════════════ */
+function initAmbientMathBg() {
+  const container = document.getElementById('ambientMathBg');
+  if (!container) return;
+
+  const SYMBOLS = ['Σ', '∫', 'π', 'λ', '√', '∞', 'Δ', 'θ', '∇', '±', '∈', '≠', '≤', '∀', '∂', '⊥', '×'];
+  const NUM_SYMBOLS = 28;
+
+  container.innerHTML = '';
+
+  for (let i = 0; i < NUM_SYMBOLS; i++) {
+    const span = document.createElement('span');
+    span.className = 'ambient-symbol';
+
+    // Pick a random symbol from the set
+    const char = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+    span.textContent = char;
+
+    // Random horizontal position (1% to 98%)
+    const left = (Math.random() * 97 + 1).toFixed(2);
+    // Random font size (14px to 48px)
+    const fontSize = Math.floor(Math.random() * (48 - 14 + 1)) + 14;
+    // Random animation duration (14s to 32s)
+    const duration = (Math.random() * (32 - 14) + 14).toFixed(1);
+    // Random negative delay so symbols start pre-dispersed vertically across screen
+    const delay = (-Math.random() * duration).toFixed(1);
+    // Random slight rotation (-45deg to 45deg)
+    const rotation = (Math.random() * 90 - 45).toFixed(1);
+    // Random peak opacity (0.40 to 0.60)
+    const maxOpacity = (Math.random() * 0.20 + 0.40).toFixed(2);
+
+    span.style.left = `${left}%`;
+    span.style.fontSize = `${fontSize}px`;
+    span.style.animationDuration = `${duration}s`;
+    span.style.animationDelay = `${delay}s`;
+    span.style.setProperty('--rot', `${rotation}deg`);
+    span.style.setProperty('--max-opacity', maxOpacity);
+
+    container.appendChild(span);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAmbientMathBg);
+} else {
+  initAmbientMathBg();
+}
+

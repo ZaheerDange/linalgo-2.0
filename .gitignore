@@ -1,24 +1,11 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Database
-*.db
-linalgo.db
-
-# Virtual environments
-venv/
+*.pyc
+*.pyo
 .venv/
 env/
-ENV/
-
-# IDE & Editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Operating System files
-.DS_Store
-Thumbs.db
+venv/
+.env
+.vercel
+FINAL/
+LINALGO_2.0/
+webapp/

@@ -8,12 +8,23 @@ import sqlite3
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import shutil
+
 DB_PATH = os.path.join(os.path.dirname(__file__), 'linalgo.db')
 
 
 def get_db_connection():
-    """Establishes and returns a connection to the SQLite database."""
-    conn = sqlite3.connect(DB_PATH)
+    """Establishes and returns a connection to the SQLite database with serverless fallback."""
+    target_path = DB_PATH
+    db_dir = os.path.dirname(DB_PATH) or '.'
+    if not os.access(db_dir, os.W_OK):
+        tmp_path = '/tmp/linalgo.db'
+        if not os.path.exists(tmp_path):
+            if os.path.exists(DB_PATH):
+                shutil.copy2(DB_PATH, tmp_path)
+        target_path = tmp_path
+
+    conn = sqlite3.connect(target_path)
     conn.row_factory = sqlite3.Row
     return conn
 

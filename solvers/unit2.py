@@ -313,7 +313,7 @@ def solve_eigenvalues(data):
             row_items.append(sp.latex(A_minus_lam[i, j]))
         rows_latex.append(" & ".join(row_items))
 
-    aml_matrix_latex = f"\\begin{{pmatrix}}{' \\\\\n'.join(rows_latex)}\\end{pmatrix}"
+    aml_matrix_latex = f"\\begin{{pmatrix}}{' \\\\\n'.join(rows_latex)}\\end{{pmatrix}}"
 
     steps.append({
         "title": "Step 1: Form Matrix $(A - \\lambda I)$",

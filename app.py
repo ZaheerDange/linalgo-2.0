@@ -192,6 +192,7 @@ def api_solve(module_name):
     if data is None:
         return jsonify({'error': 'Request body must be valid JSON.', 'success': False}), 400
 
+    user_id = session.get('user_id')
     rem_credits = None
     if user_id:
         success, rem_credits, msg = db.deduct_credit(user_id)

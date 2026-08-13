@@ -160,12 +160,16 @@ strong, b { font-weight: 600; }
   font-weight: 700;
   letter-spacing: -0.3px;
 }
-.brand-icon {
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, #FFFFFF, #C2183E);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.brand-logo-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 8px rgba(224, 54, 90, 0.45));
+  transition: transform var(--transition);
+}
+.navbar-brand:hover .brand-logo-img {
+  transform: scale(1.06);
 }
 .brand-text { color: var(--text-primary); }
 .brand-accent { color: var(--color-burgundy-vivid); }
@@ -232,7 +236,7 @@ strong, b { font-weight: 600; }
   justify-content: center;
   overflow: hidden;
   padding: 80px 24px;
-  background: var(--bg-root);
+  background: transparent;
 }
 
 .hero-bg-glow {
@@ -243,13 +247,14 @@ strong, b { font-weight: 600; }
     radial-gradient(ellipse 50% 40% at 80% 80%, rgba(194,24,62,0.20) 0%, transparent 60%),
     radial-gradient(ellipse 40% 30% at 10% 70%, rgba(139,0,33,0.25) 0%, transparent 60%);
   pointer-events: none;
+  z-index: 0;
 }
 
 .hero-content {
   position: relative;
   text-align: center;
   max-width: 760px;
-  z-index: 1;
+  z-index: 5;
 }
 
 .hero-badge {
@@ -319,19 +324,54 @@ strong, b { font-weight: 600; }
 .stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-divider { width: 1px; height: 36px; background: var(--border-dim); }
 
-/* Floating math symbols */
-.hero-floats { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-.float-sym {
-  position: absolute;
-  color: rgba(109,0,26,0.35);
-  font-family: var(--font-mono);
-  font-weight: 600;
-  animation: floatSymbol 8s ease-in-out infinite alternate;
+/* ── Ambient Math Symbols Background ───────────────────────────────────────── */
+.ambient-math-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
   user-select: none;
 }
-@keyframes floatSymbol {
-  from { transform: translateY(0) rotate(0deg); opacity: 0.25; }
-  to   { transform: translateY(-20px) rotate(8deg); opacity: 0.45; }
+
+.ambient-symbol {
+  position: absolute;
+  bottom: -60px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #FF5C80; /* Glowing Accent Rose/Wine */
+  text-shadow: 0 0 8px rgba(255, 92, 128, 0.35);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: ambientDrift linear infinite;
+  pointer-events: none;
+}
+
+@keyframes ambientDrift {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--max-opacity, 0.50);
+  }
+  85% {
+    opacity: var(--max-opacity, 0.50);
+  }
+  100% {
+    transform: translateY(calc(-100vh - 140px)) rotate(var(--rot, 30deg));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-symbol {
+    animation: none !important;
+    opacity: 0 !important;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -503,20 +543,24 @@ strong, b { font-weight: 600; }
 .solver-layout {
   display: flex;
   min-height: calc(100vh - var(--navbar-h));
-  background: var(--bg-root);
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 .sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
-  background: var(--bg-surface);
+  background: rgba(10, 3, 5, 0.85);
+  backdrop-filter: blur(12px);
   border-right: 1px solid var(--border-dim);
   padding: 20px 12px;
   position: sticky;
   top: var(--navbar-h);
   height: calc(100vh - var(--navbar-h));
   overflow-y: auto;
+  z-index: 2;
 }
 
 .sidebar-header {
