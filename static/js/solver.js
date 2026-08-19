@@ -23,9 +23,11 @@ const el = (tag, cls, inner) => {
 /* ══════════════════════════════════════════════════════════════════════════════
    STATE
    ══════════════════════════════════════════════════════════════════════════════ */
-let MODULE    = null;   // set by solver.html inline script
-let META      = null;
-let EXAMPLE   = null;
+let MODULE            = null;   // set by solver.html inline script
+let META              = null;
+let EXAMPLE           = null;
+let lastSolvedSteps   = [];
+let lastSolvedPayload = null;
 
 /* ══════════════════════════════════════════════════════════════════════════════
    PUBLIC ENTRY POINT  (called from solver.html)
@@ -65,6 +67,10 @@ window.initSolver = function () {
 
   const clearBtn = $('btnClear');
   if (clearBtn) clearBtn.addEventListener('click', clearInputs);
+
+  // Export button
+  const pdfBtn = $('btnExportPDF');
+  if (pdfBtn) pdfBtn.addEventListener('click', exportToPDF);
 };
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -378,6 +384,9 @@ async function handleSolve() {
       updateNavbarCredits(data.remaining_credits);
     }
 
+    lastSolvedSteps = data.steps || [];
+    lastSolvedPayload = payload;
+
     renderSteps(data.steps);
   } catch (e) {
     showError('Network error: ' + e.message);
@@ -597,9 +606,6 @@ function initAmbientMathBg() {
     span.style.fontSize = `${fontSize}px`;
     span.style.animationDuration = `${duration}s`;
     span.style.animationDelay = `${delay}s`;
-    span.style.setProperty('--rot', `${rotation}deg`);
-    span.style.setProperty('--max-opacity', maxOpacity);
-
     container.appendChild(span);
   }
 }
@@ -609,4 +615,305 @@ if (document.readyState === 'loading') {
 } else {
   initAmbientMathBg();
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   EXPORT TO PDF & WORD (.DOC)
+   ══════════════════════════════════════════════════════════════════════════════ */
+function exportToPDF() {
+  if (!lastSolvedSteps || lastSolvedSteps.length === 0) {
+    alert("No solution steps available to export. Please solve a problem first.");
+    return;
+  }
+  const section = $('stepsSection');
+  if (section) section.hidden = false;
+
+  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+    MathJax.typesetPromise().then(() => {
+      window.print();
+    });
+  } else {
+    window.print();
+  }
+}
+
+function exportToWord() {
+  if (!lastSolvedSteps || lastSolvedSteps.length === 0) {
+    alert("No solution steps available to export. Please solve a problem first.");
+    return;
+  }
+
+  const moduleTitle = META ? META.title : "LinAlgo Solution";
+  const moduleSub   = META ? META.subtitle : "";
+  const dateStr     = new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  let html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${escapeHtml(moduleTitle)} — LinAlgo Solution</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    color: #111111;
+    line-height: 1.5;
+    margin: 24pt;
+    background-color: #FFFFFF;
+  }
+  .doc-title {
+    color: #6D001A;
+    font-size: 22pt;
+    font-weight: bold;
+    margin-bottom: 4pt;
+    border-bottom: 2pt solid #6D001A;
+    padding-bottom: 6pt;
+  }
+  .doc-subtitle {
+    color: #666666;
+    font-size: 12pt;
+    margin-bottom: 14pt;
+  }
+  .meta-box {
+    background-color: #F8F4F5;
+    border: 1pt solid #D9C5C9;
+    padding: 10pt 14pt;
+    border-radius: 4pt;
+    margin-bottom: 18pt;
+    font-size: 10.5pt;
+    color: #333333;
+  }
+  .step-card {
+    border: 1pt solid #D9C5C9;
+    border-left: 5pt solid #6D001A;
+    border-radius: 4pt;
+    margin-bottom: 16pt;
+    padding: 14pt 16pt;
+    background-color: #FAFAFA;
+  }
+  .step-card-solution {
+    border-left-color: #C2183E;
+    background-color: #FFFDFD;
+  }
+  .step-header {
+    font-weight: bold;
+    font-size: 13pt;
+    color: #6D001A;
+    margin-bottom: 6pt;
+  }
+  .step-desc {
+    font-size: 11pt;
+    color: #222222;
+    margin-bottom: 8pt;
+    line-height: 1.5;
+  }
+  .matrix-container {
+    margin: 10pt 0;
+  }
+  .formula-box {
+    background-color: #F4ECEE;
+    border-left: 3pt solid #A30F30;
+    padding: 8pt 14pt;
+    font-family: 'Cambria Math', Consolas, monospace;
+    font-size: 11pt;
+    color: #111111;
+    margin: 8pt 0;
+  }
+  .solution-box {
+    background-color: #FFF2F5;
+    border: 1.5pt solid #C2183E;
+    padding: 12pt 16pt;
+    font-weight: bold;
+    font-size: 11.5pt;
+    color: #6D001A;
+    margin-top: 10pt;
+    border-radius: 4pt;
+  }
+</style>
+</head>
+<body>
+  <div class="doc-title">LinAlgo 2.0 — ${escapeHtml(moduleTitle)}</div>
+  <div class="doc-subtitle">${escapeHtml(moduleSub)}</div>
+  
+  <div class="meta-box">
+    <strong>Module:</strong> ${escapeHtml(moduleTitle)}<br/>
+    <strong>Generated On:</strong> ${escapeHtml(dateStr)}<br/>
+    <strong>Total Steps:</strong> ${lastSolvedSteps.length}
+  </div>
+`;
+
+  lastSolvedSteps.forEach((step, idx) => {
+    const num = idx + 1;
+    const isSolution = step.type === 'solution';
+    const cleanTitle = cleanMathText(step.title || `Step ${num}`);
+    const cleanDesc  = cleanMathText(step.description || '');
+
+    html += `  <div class="step-card ${isSolution ? 'step-card-solution' : ''}">\n`;
+    html += `    <div class="step-header">Step ${num}: ${cleanTitle}</div>\n`;
+    
+    if (cleanDesc) {
+      html += `    <div class="step-desc">${cleanDesc}</div>\n`;
+    }
+    if (step.matrix_latex) {
+      const tableHtml = matrixLatexToHtmlTable(step.matrix_latex);
+      html += `    <div class="matrix-container"><strong>Matrix State:</strong><br/>${tableHtml}</div>\n`;
+    }
+    if (step.operation_latex) {
+      const cleanOp = cleanMathText(step.operation_latex);
+      html += `    <div class="formula-box"><strong>Operation / Formula:</strong> ${cleanOp}</div>\n`;
+    }
+    if (step.result_latex) {
+      const cleanRes = cleanMathText(step.result_latex);
+      html += `    <div class="solution-box"><strong>Final Result:</strong><br/>${cleanRes}</div>\n`;
+    }
+    html += `  </div>\n`;
+  });
+
+  html += `</body>\n</html>`;
+
+  const blob = new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' });
+  const filename = `LinAlgo_${(MODULE || 'solution').replace(/[^a-z0-9_-]/gi, '_')}_${Date.now()}.doc`;
+  
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(link.href), 500);
+}
+
+function cleanMathText(text) {
+  if (!text) return '';
+  let s = String(text);
+  
+  // Convert markdown bold to HTML
+  s = s.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  
+  // LaTeX wrappers
+  s = s.replace(/\\mathbf\{([^}]+)\}/g, '$1');
+  s = s.replace(/\\vec\{([^}]+)\}/g, '$1');
+  s = s.replace(/\\text\{([^}]+)\}/g, '$1');
+  s = s.replace(/\\boxed\{([^}]+)\}/g, '$1');
+  s = s.replace(/\\dfrac\{([^}]+)\}\{([^}]+)\}/g, '($1 / $2)');
+  s = s.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1 / $2)');
+  s = s.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
+  s = s.replace(/\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '^$1√($2)');
+  
+  // LaTeX operators & symbols
+  s = s.replace(/\\mid/g, ' | ');
+  s = s.replace(/\\leftarrow/g, ' ← ');
+  s = s.replace(/\\rightarrow/g, ' → ');
+  s = s.replace(/\\cdot/g, ' · ');
+  s = s.replace(/\\times/g, ' × ');
+  s = s.replace(/\\le/g, ' ≤ ');
+  s = s.replace(/\\ge/g, ' ≥ ');
+  s = s.replace(/\\neq/g, ' ≠ ');
+  s = s.replace(/\\lambda/g, 'λ');
+  s = s.replace(/\\theta/g, 'θ');
+  s = s.replace(/\\pi/g, 'π');
+  s = s.replace(/\\det/g, 'det');
+  s = s.replace(/\\quad/g, '  ');
+  s = s.replace(/\\qquad/g, '    ');
+  s = s.replace(/\\,/g, ' ');
+  s = s.replace(/\\;/g, ' ');
+  s = s.replace(/\\:/g, ' ');
+  s = s.replace(/\\\\/g, '<br/>');
+  
+  // Subscripts: _{1} -> ₁ or _1 -> ₁
+  const subMap = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉' };
+  for (const [digit, sub] of Object.entries(subMap)) {
+    s = s.replace(new RegExp(`_\\{${digit}\\}`, 'g'), sub);
+    s = s.replace(new RegExp(`_${digit}`, 'g'), sub);
+  }
+  
+  // Strip math delimiter dollars
+  s = s.replace(/\$/g, '');
+  
+  // Collapse whitespace
+  s = s.replace(/[ \t]+/g, ' ');
+  return s.trim();
+}
+
+function matrixLatexToHtmlTable(latex) {
+  if (!latex) return '';
+  
+  // Check for augmented matrix column separator specifier e.g. {rrr|r}
+  let augSplitIdx = -1;
+  const colMatch = latex.match(/\\begin\{array\}\{([^}]+)\}/);
+  if (colMatch && colMatch[1]) {
+    const spec = colMatch[1];
+    if (spec.indexOf('|') !== -1) {
+      augSplitIdx = spec.indexOf('|');
+    }
+  }
+  
+  // Clean LaTeX brackets and array environment tags
+  let cleaned = latex
+    .replace(/\\left[\[\(\{]/g, '')
+    .replace(/\\right[\]\)\}]/g, '')
+    .replace(/\\begin\{(array|matrix|pmatrix|bmatrix)\}(\{[^}]*\})?/g, '')
+    .replace(/\\end\{(array|matrix|pmatrix|bmatrix)\}/g, '');
+  
+  const rawRows = cleaned.split(/\\\\/).map(r => r.trim()).filter(r => r.length > 0);
+  if (rawRows.length === 0) return '';
+  
+  const numRows = rawRows.length;
+  let html = '<table cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin: 10pt 0; background: #FFFFFF; font-family: \'Cambria Math\', Consolas, \'Segoe UI Symbol\', monospace; font-size: 12pt;">\n';
+  
+  rawRows.forEach((row, rIdx) => {
+    const cells = row.split('&').map(c => c.trim());
+    const numCols = cells.length;
+    html += '  <tr>\n';
+    
+    cells.forEach((cell, cIdx) => {
+      const cleanCell = cleanMathText(cell);
+      const isTop = (rIdx === 0);
+      const isBottom = (rIdx === numRows - 1);
+      const isLeft = (cIdx === 0);
+      const isRight = (cIdx === numCols - 1);
+      const isAug = (augSplitIdx > 0 && cIdx >= augSplitIdx);
+      const isAugDivider = (augSplitIdx > 0 && cIdx === augSplitIdx);
+      
+      // Outer matrix bracket left bar
+      let borderL = isLeft ? 'border-left: 2.5pt solid #222222;' : 'border-left: none;';
+      if (isAugDivider) {
+        borderL = 'border-left: 1.5pt solid #6D001A;';
+      }
+      
+      // Outer matrix bracket right bar
+      const borderR = isRight ? 'border-right: 2.5pt solid #222222;' : 'border-right: none;';
+      
+      // Top and bottom bracket cap ticks
+      const borderT = (isTop && (isLeft || isRight)) ? 'border-top: 2pt solid #222222;' : 'border-top: none;';
+      const borderB = (isBottom && (isLeft || isRight)) ? 'border-bottom: 2pt solid #222222;' : 'border-bottom: none;';
+      
+      const bg = isAug ? 'background-color: #FDF7F8;' : '';
+      const color = isAug ? 'color: #6D001A; font-weight: bold;' : 'color: #111111;';
+      
+      const style = `${borderL} ${borderR} ${borderT} ${borderB} ${bg} ${color} padding: 6pt 16pt; text-align: center; min-width: 28pt; border-spacing: 0;`;
+      html += `    <td style="${style}">${cleanCell}</td>\n`;
+    });
+    html += '  </tr>\n';
+  });
+  
+  html += '</table>';
+  return html;
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
 

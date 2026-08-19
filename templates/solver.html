@@ -179,8 +179,15 @@
     <!-- ── Steps Output ────────────────────────────────────────────────── -->
     <div class="steps-section" id="stepsSection" hidden>
       <div class="steps-header">
-        <h2 class="steps-title">Solution — Step by Step</h2>
-        <span class="steps-count" id="stepsCount"></span>
+        <div>
+          <h2 class="steps-title">Solution — Step by Step</h2>
+          <span class="steps-count" id="stepsCount"></span>
+        </div>
+        <div class="export-actions">
+          <button class="btn btn-ghost btn-sm btn-export" id="btnExportPDF" title="Export solution as PDF document">
+            📄 Export PDF
+          </button>
+        </div>
       </div>
       <div class="steps-container" id="stepsContainer" aria-live="polite"></div>
     </div>

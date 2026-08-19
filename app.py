@@ -205,6 +205,17 @@ def api_solve(module_name):
 
     try:
         steps = SOLVER_MAP[module_name](data)
+
+        # Automatically record calculation in user history if logged in
+        if user_id:
+            db.save_solution_history(
+                user_id=user_id,
+                module_name=module_name,
+                module_title=MODULES[module_name]['title'],
+                input_data=data,
+                steps=steps
+            )
+
         return jsonify({'steps': steps, 'remaining_credits': rem_credits, 'success': True})
     except ValueError as exc:
         return jsonify({'error': str(exc), 'success': False}), 400
@@ -326,7 +337,7 @@ def logout():
 def profile():
     user_id = session.get('user_id')
     if not user_id:
-        flash("Please sign in to view your profile.", "info")
+        flash("Please sign in to view your profile and saved history.", "info")
         return redirect(url_for('login'))
 
     user = db.get_user_by_id(user_id)
@@ -334,7 +345,52 @@ def profile():
         session.clear()
         return redirect(url_for('login'))
 
-    return render_template('profile.html', user=user)
+    history_items = db.get_user_solution_history(user_id, limit=30)
+    return render_template('profile.html', user=user, history_items=history_items)
+
+
+@app.route('/history/<int:history_id>')
+def history_detail(history_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please sign in to view saved solutions.", "info")
+        return redirect(url_for('login'))
+
+    solution = db.get_solution_by_id(history_id, user_id=user_id)
+    if not solution:
+        flash("Saved solution not found.", "error")
+        return redirect(url_for('profile'))
+
+    meta = MODULES.get(solution['module_name'], {
+        'title': solution['module_title'],
+        'subtitle': 'Saved Calculation',
+        'unit': 1,
+        'icon': '∑',
+        'color': 'burgundy',
+        'description': 'Saved linear algebra calculation history record.'
+    })
+
+    return render_template(
+        'history_detail.html',
+        solution=solution,
+        meta=meta,
+        module=solution['module_name'],
+        all_modules=MODULES
+    )
+
+
+@app.route('/api/history/delete/<int:history_id>', methods=['POST', 'DELETE'])
+def api_delete_history(history_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized', 'success': False}), 401
+
+    success = db.delete_solution_history(history_id, user_id)
+    if success:
+        return jsonify({'success': True, 'message': 'Calculation removed from history.'})
+    else:
+        return jsonify({'success': False, 'error': 'Could not delete item or record not found.'}), 404
+
 
 
 @app.errorhandler(404)

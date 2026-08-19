@@ -60,7 +60,78 @@
           Sign Out
         </a>
       </div>
+
+      <!-- ── Solution History & Saved Computations Section ───────────────────── -->
+      <div class="profile-history-section">
+        <div class="history-header">
+          <h2 class="history-title">📚 Solution History & Saved Computations</h2>
+          <span class="history-count">{{ history_items | length if history_items else 0 }} items</span>
+        </div>
+
+        {% if history_items and history_items | length > 0 %}
+          <div class="history-grid">
+            {% for item in history_items %}
+            <div class="history-card" id="history-card-{{ item.id }}">
+              <div class="history-card-top">
+                <span class="module-chip">{{ item.module_title }}</span>
+                <span class="history-time">{{ item.created_at[:16] }}</span>
+              </div>
+              <div class="history-summary">
+                <strong>Input:</strong> {{ item.input_summary }}
+              </div>
+              <div class="history-result">
+                <strong>Result:</strong> <span class="math-preview">{{ item.result_summary }}</span>
+              </div>
+              <div class="history-card-actions">
+                <a href="/history/{{ item.id }}" class="btn btn-primary btn-sm">
+                  View Solution &rarr;
+                </a>
+                <button class="btn btn-ghost btn-sm btn-delete-history" data-id="{{ item.id }}" title="Delete from history">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="history-empty">
+            <p>No saved computations yet. Solve any linear algebra problem while signed in to automatically log your derivations here!</p>
+            <a href="/solver/gaussian" class="btn btn-primary btn-sm" style="margin-top:12px;">Start Solving &rarr;</a>
+          </div>
+        {% endif %}
+      </div>
+
     </div>
   </div>
 </section>
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-delete-history').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = btn.getAttribute('data-id');
+        if (!confirm('Are you sure you want to remove this calculation from your history?')) return;
+
+        try {
+          const resp = await fetch(`/api/history/delete/${id}`, { method: 'POST' });
+          const res = await resp.json();
+          if (res.success) {
+            const card = document.getElementById(`history-card-${id}`);
+            if (card) {
+              card.style.opacity = '0';
+              card.style.transform = 'scale(0.95)';
+              setTimeout(() => card.remove(), 200);
+            }
+          } else {
+            alert(res.error || 'Failed to delete history item.');
+          }
+        } catch (err) {
+          alert('Network error deleting history item.');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
 {% endblock %}

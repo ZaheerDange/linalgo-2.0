@@ -3,6 +3,7 @@ LinAlgo Database Manager (SQLite)
 Handles user accounts, authentication data, credit balances, and subscription plans.
 """
 
+import json
 import os
 import sqlite3
 from datetime import datetime
@@ -45,6 +46,21 @@ def init_db():
             plan_type TEXT DEFAULT 'free',
             is_unlimited INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Create solution_history table for saved user computations
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS solution_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            module_name TEXT NOT NULL,
+            module_title TEXT NOT NULL,
+            input_summary TEXT,
+            result_summary TEXT,
+            full_steps_json TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     ''')
     conn.commit()
@@ -226,5 +242,120 @@ def set_lifetime_unlimited_user(user_id):
     return get_user_by_id(user_id)
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Solution History & Saved Computations Data Layer
+# ──────────────────────────────────────────────────────────────────────────────
+
+def save_solution_history(user_id, module_name, module_title, input_data, steps):
+    """Saves a user's calculation inputs and generated steps to solution_history."""
+    if not user_id or not steps:
+        return None
+
+    # Format input summary text
+    input_summary = ""
+    if isinstance(input_data, dict):
+        if 'matrix' in input_data:
+            m = input_data['matrix']
+            rows = len(m)
+            cols = len(m[0]) if rows > 0 else 0
+            input_summary = f"{rows}×{cols} Matrix"
+        elif 'u' in input_data and 'v' in input_data:
+            input_summary = f"Vectors u, v in ℝ^{len(input_data['u'])}"
+        elif 'vectors' in input_data:
+            vecs = input_data['vectors']
+            input_summary = f"{len(vecs)} Vectors in ℝ^{len(vecs[0]) if vecs else 0}"
+        else:
+            input_summary = "Custom Linear System"
+    else:
+        input_summary = "Calculation Input"
+
+    # Extract final solution result if available
+    result_summary = "Solved Step-by-Step"
+    for s in reversed(steps):
+        if s.get('type') == 'solution' or s.get('result_latex'):
+            result_summary = s.get('title') or s.get('result_latex') or "Solved"
+            break
+
+    full_steps_json = json.dumps(steps)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO solution_history (user_id, module_name, module_title, input_summary, result_summary, full_steps_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (user_id, module_name, module_title, input_summary, result_summary, full_steps_json))
+
+    conn.commit()
+    history_id = cursor.lastrowid
+    conn.close()
+    return history_id
+
+
+def get_user_solution_history(user_id, limit=30):
+    """Retrieves recent solution history for a user."""
+    if not user_id:
+        return []
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, user_id, module_name, module_title, input_summary, result_summary, created_at
+        FROM solution_history
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+    ''', (user_id, limit))
+
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_solution_by_id(history_id, user_id=None):
+    """Retrieves a single solution history entry by ID."""
+    if not history_id:
+        return None
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if user_id:
+        cursor.execute('''
+            SELECT * FROM solution_history
+            WHERE id = ? AND user_id = ?
+        ''', (history_id, user_id))
+    else:
+        cursor.execute('SELECT * FROM solution_history WHERE id = ?', (history_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+
+    item = dict(row)
+    if item.get('full_steps_json'):
+        try:
+            item['steps'] = json.loads(item['full_steps_json'])
+        except Exception:
+            item['steps'] = []
+    else:
+        item['steps'] = []
+    return item
+
+
+def delete_solution_history(history_id, user_id):
+    """Deletes a solution history entry for a user."""
+    if not history_id or not user_id:
+        return False
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM solution_history WHERE id = ? AND user_id = ?', (history_id, user_id))
+    affected = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return affected > 0
+
+
 # Initialize DB and columns
 init_db()
+
