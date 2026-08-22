@@ -16,11 +16,7 @@
   5. **Determinant**: Submatrix minor & cofactor expansion step-by-step.
   6. **Eigenvalues & Eigenvectors**: Characteristic polynomial $\det(A - \lambda I) = 0$ solving.
   7. **Gram-Schmidt**: Orthogonalization and orthonormal basis normalization.
-- **User Portal & Authentication**: Account creation, login, session management, and SQLite user storage.
-- **Monetization & Credit System**:
-  - Starter Free Tier (50 Credits)
-  - Weekly Pro Pass (₹2,000 / week — 200 Credits)
-  - Lifetime Unlimited VIP Pass (₹20,000 — Unlimited Access)
+- **Open & Direct Access**: No logins, subscriptions, or credit barriers needed.
 
 ---
 

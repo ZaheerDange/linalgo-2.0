@@ -60,32 +60,8 @@
         <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
           Home
         </a>
-        <a href="/solver/gaussian" class="nav-link">Unit I</a>
-        <a href="/solver/determinant" class="nav-link">Unit II</a>
-        <a href="/pricing" class="nav-link {% if request.endpoint == 'pricing' %}active{% endif %}">Pricing</a>
-
-        {% if current_user %}
-        <a href="/pricing" class="nav-credits-badge" title="Manage Credits & Plan">
-          {% if current_user.is_unlimited %}
-            <span class="credit-icon">♾️</span> <span class="credit-count">Unlimited</span>
-          {% else %}
-            <span class="credit-icon">🪙</span> <span class="credit-count">{{ current_user.credits if current_user.credits is not none else 0 }} Credits</span>
-          {% endif %}
-        </a>
-
-        <div class="nav-user-menu">
-          <a href="/profile" class="nav-user-badge" title="View Profile">
-            <span class="avatar-circle">{{ current_user.username[0] | upper }}</span>
-            <span class="username-text">{{ current_user.username }}</span>
-          </a>
-          <a href="/logout" class="btn btn-sm btn-ghost nav-auth-btn">Logout</a>
-        </div>
-        {% else %}
-        <div class="nav-auth-actions">
-          <a href="/login" class="btn btn-sm btn-ghost nav-auth-btn">Sign In</a>
-          <a href="/register" class="btn btn-sm btn-primary nav-auth-btn">Register</a>
-        </div>
-        {% endif %}
+        <a href="/solver/gaussian" class="nav-link {% if module and meta and meta.unit == 1 %}active{% endif %}">Unit I</a>
+        <a href="/solver/determinant" class="nav-link {% if module and meta and meta.unit == 2 %}active{% endif %}">Unit II</a>
       </div>
     </div>
   </nav>

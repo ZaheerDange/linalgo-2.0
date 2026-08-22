@@ -67,10 +67,6 @@ window.initSolver = function () {
 
   const clearBtn = $('btnClear');
   if (clearBtn) clearBtn.addEventListener('click', clearInputs);
-
-  // Export button
-  const pdfBtn = $('btnExportPDF');
-  if (pdfBtn) pdfBtn.addEventListener('click', exportToPDF);
 };
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -369,19 +365,8 @@ async function handleSolve() {
     const data = await resp.json();
 
     if (!data.success) {
-      if (data.error === 'INSUFFICIENT_CREDITS') {
-        showErrorHTML(
-          '<strong>Out of Credits!</strong> You have used all your credits. ' +
-          '<a href="/pricing" style="color:var(--color-wine);font-weight:700;text-decoration:underline;">Upgrade Plan or Buy Credits here &rarr;</a>'
-        );
-      } else {
-        showError(data.message || data.error || 'Unknown server error.');
-      }
+      showError(data.message || data.error || 'Unknown server error.');
       return;
-    }
-
-    if (data.remaining_credits !== undefined && data.remaining_credits !== null) {
-      updateNavbarCredits(data.remaining_credits);
     }
 
     lastSolvedSteps = data.steps || [];
@@ -555,20 +540,6 @@ function retypeset(element) {
   }, { passive: true });
 })();
 
-function updateNavbarCredits(remCredits) {
-  const countEl = document.querySelector('.nav-credits-badge .credit-count');
-  const iconEl = document.querySelector('.nav-credits-badge .credit-icon');
-  if (!countEl) return;
-
-  if (remCredits === 'unlimited') {
-    countEl.textContent = 'Unlimited';
-    if (iconEl) iconEl.textContent = '♾️';
-  } else {
-    countEl.textContent = `${remCredits} Credits`;
-    if (iconEl) iconEl.textContent = '🪙';
-  }
-}
-
 /* ══════════════════════════════════════════════════════════════════════════════
    AMBIENT MATH SYMBOLS BACKGROUND
    ══════════════════════════════════════════════════════════════════════════════ */
@@ -616,25 +587,7 @@ if (document.readyState === 'loading') {
   initAmbientMathBg();
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
-   EXPORT TO PDF & WORD (.DOC)
-   ══════════════════════════════════════════════════════════════════════════════ */
-function exportToPDF() {
-  if (!lastSolvedSteps || lastSolvedSteps.length === 0) {
-    alert("No solution steps available to export. Please solve a problem first.");
-    return;
-  }
-  const section = $('stepsSection');
-  if (section) section.hidden = false;
 
-  if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-    MathJax.typesetPromise().then(() => {
-      window.print();
-    });
-  } else {
-    window.print();
-  }
-}
 
 function exportToWord() {
   if (!lastSolvedSteps || lastSolvedSteps.length === 0) {
